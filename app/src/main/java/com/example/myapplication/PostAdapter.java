@@ -3,10 +3,12 @@ package com.example.myapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -17,10 +19,12 @@ public class PostAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private List<Post> postList;
     private String[] bgColors;
+    private CheckBoxListener checkBoxListener;
 
-    public PostAdapter(Activity activity, List<Post> movieList) {
+    public PostAdapter(Activity activity, List<Post> movieList,CheckBoxListener checkBoxListener) {
         this.activity = activity;
         this.postList = movieList;
+        this.checkBoxListener = checkBoxListener;
         bgColors = activity.getApplicationContext().getResources().getStringArray(R.array.movie_serial_bg);
     }
 
@@ -41,7 +45,7 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
+    final  int pos = position;
         if (inflater == null)
             inflater = (LayoutInflater) activity
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -51,7 +55,17 @@ public class PostAdapter extends BaseAdapter {
         TextView created_at = (TextView) convertView.findViewById(R.id.created_at);
         TextView title = (TextView) convertView.findViewById(R.id.title);
         Switch selectUnselect = (Switch) convertView.findViewById(R.id.selectUnselect);
-
+        selectUnselect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("TAG Test", "checked "+isChecked);
+                postList.get(pos).selectUnselect = isChecked;
+                if(isChecked)
+                    checkBoxListener.addPost();
+                else
+                    checkBoxListener.removePost();
+            }
+        });
         created_at.setText(String.valueOf(postList.get(position).created_at));
         title.setText(postList.get(position).title);
         selectUnselect.setChecked(postList.get(position).selectUnselect);
@@ -60,5 +74,9 @@ public class PostAdapter extends BaseAdapter {
 
         return convertView;
     }
-
+    public interface CheckBoxListener
+    {
+        void addPost();
+        void removePost();
+    }
 }

@@ -36,7 +36,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, PostAdapter.CheckBoxListener {
 
     private String TAG = MainActivity.class.getSimpleName();
 
@@ -64,8 +64,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         postList = new ArrayList<>();
-        adapter = new PostAdapter(this, postList);
-        adapter.notifyDataSetChanged();
+        adapter = new PostAdapter(this, postList,this);
         listView.setAdapter(adapter);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -87,35 +86,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             }
         });
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
-                // Get user selected item.
-
-                Toast.makeText(MainActivity.this, "clickkkkk", Toast.LENGTH_SHORT).show();
-
-                Object itemObject = adapterView.getAdapter().getItem(itemIndex);
-
-                Post post = (Post)itemObject;
-
-                // Get the checkbox.
-                Switch selectUnselect = (Switch) view.findViewById(R.id.selectUnselect);
-
-                // Reverse the checkbox and clicked item check state.
-                if(selectUnselect.isChecked())
-                {
-                    totalNoPost = totalNoPost + 1;
-                    post.selectUnselect = false;
-                }else
-                {
-                    totalNoPost = totalNoPost - 1;
-                    post.selectUnselect = true;
-                }
-                totalSelectedPost.setText("Total Selected Post :"+totalNoPost);
-                adapter.notifyDataSetChanged();
-                //Toast.makeText(getApplicationContext(), "select item text : " + itemDto.getItemText(), Toast.LENGTH_SHORT).show();
-            }
-        });
         swipeRefreshLayout.setOnRefreshListener(this);
 
         /**
@@ -133,6 +103,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         );
 
     }
+
+    @Override
+    public void addPost() {
+        totalNoPost = totalNoPost + 1;
+        totalSelectedPost.setText("Total Selected Post :"+totalNoPost);
+    }
+
+    @Override
+    public void removePost() {
+        totalNoPost = totalNoPost - 1;
+        totalSelectedPost.setText("Total Selected Post :"+totalNoPost);
+    }
+
     /**
      * This method is called when swipe refresh is pulled down
      */
@@ -206,26 +189,5 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Adding request to request queue
         MyVolley.getInstance().addToRequestQueue(req);
-    }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
