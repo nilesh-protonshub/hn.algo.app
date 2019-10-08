@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -66,6 +67,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         adapter = new PostAdapter(this, postList);
         adapter.notifyDataSetChanged();
         listView.setAdapter(adapter);
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                int threshold = 1;
+                int count = listView.getCount();
+
+                if (scrollState == SCROLL_STATE_IDLE) {
+                    if (listView.getLastVisiblePosition() >= count - threshold) {
+                        Log.i(TAG, "loading more data");
+                        // Execute LoadMoreDataTask AsyncTask
+                        fetchPosts();
+                    }
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+        });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
